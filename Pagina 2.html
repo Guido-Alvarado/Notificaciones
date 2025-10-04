@@ -1,325 +1,281 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestión de Plantillas de Notificaciones de Cuotas</title>
-    <style>
-        /* Estilos basados en el código de referencia */
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: sans-serif; }
-        body { background-color: #1f2937; color: #fff; padding: 20px; }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gestión de Plantillas de Notificaciones de Cuotas</title>
+  <style>
+    /* Estilos basados en el código de referencia */
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: sans-serif; }
+    body { background-color: #1f2937; color: #fff; padding: 20px; }
 
-        .container { max-width: 1200px; margin: auto; background: #111827; padding: 20px; border-radius: 12px; box-shadow: inset 0 0 10px #000; }
-        h1, h2 { color: #f1f1f1; margin-bottom: 10px; border-bottom: 2px solid #047857; padding-bottom: 5px; }
+    .container { max-width: 1000px; margin: auto; background: #111827; padding: 20px; border-radius: 12px; box-shadow: inset 0 0 10px #000; }
+    h1, h2 { color: #f1f1f1; margin-bottom: 10px; border-bottom: 2px solid #047857; padding-bottom: 5px; }
 
-        .toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .toolbar button { padding: 10px 15px; border: none; background-color: #047857; color: white; border-radius: 5px; cursor: pointer; transition: background 0.3s; }
-        .toolbar button:hover { background-color: #10b981; }
-        
-        .search-bar { padding: 8px; border-radius: 4px; border: 1px solid #374151; background: #374151; color: white; }
+    .toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .toolbar button { padding: 10px 15px; border: none; background-color: #047857; color: white; border-radius: 5px; cursor: pointer; transition: background 0.3s; }
+    .toolbar button:hover { background-color: #10b981; }
+    
+    .search-bar { padding: 8px; border-radius: 4px; border: 1px solid #374151; background: #374151; color: white; }
 
-        .templates-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        .templates-table th, .templates-table td { text-align: left; padding: 12px; border-bottom: 1px solid #374151; }
-        .templates-table th { background-color: #1f2937; }
-        .templates-table tr:hover { background-color: #2b3748; }
-        .templates-table .actions button { margin-right: 5px; padding: 6px 10px; border: none; border-radius: 3px; cursor: pointer; transition: background 0.3s; }
-        .templates-table .actions .edit { background-color: #065f46; color: white; }
-        .templates-table .actions .delete { background-color: #be123c; color: white; }
-        .templates-table .actions .edit:hover { background-color: #10b981; }
-        .templates-table .actions .delete:hover { background-color: #ef4444; }
+    .templates-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    .templates-table th, .templates-table td { text-align: left; padding: 12px; border-bottom: 1px solid #374151; }
+    .templates-table th { background-color: #1f2937; }
+    .templates-table tr:hover { background-color: #2b3748; }
+    .templates-table .actions button { margin-right: 5px; padding: 6px 10px; border: none; border-radius: 3px; cursor: pointer; transition: background 0.3s; }
+    .templates-table .actions .edit { background-color: #065f46; color: white; }
+    .templates-table .actions .delete { background-color: #be123c; color: white; }
+    .templates-table .actions .edit:hover { background-color: #10b981; }
+    .templates-table .actions .delete:hover { background-color: #ef4444; }
 
-        .form-section { 
-            display: none; /* Oculta el formulario por defecto */
-            padding: 20px; border: 1px solid #374151; background: #1f2937; border-radius: 12px; margin-top: 20px;
-        }
-        .form-section.visible { 
-            display: grid; /* Muestra el formulario cuando la clase 'visible' está activa */
-            grid-template-columns: 1fr; gap: 20px; 
-        }
-        @media (min-width: 768px) { .form-section.visible { grid-template-columns: 2fr 1fr; } }
-        
-        .form-section label { display: block; margin-top: 15px; font-weight: bold; color: #d1d5db; }
-        .form-section input[type="text"], .form-section select, .form-section textarea { 
-            width: 100%; padding: 10px; margin-top: 5px; border-radius: 4px; border: 1px solid #4b5563; 
-            background: #374151; color: #fff; box-sizing: border-box; 
-        }
-        .form-section input[type="checkbox"] { margin-top: 10px; accent-color: #10b981; }
-        
-        .form-section .form-buttons { margin-top: 20px; text-align: right; }
-        .form-section .form-buttons button { padding: 10px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; transition: background 0.3s; }
-        .form-section .form-buttons .save { background-color: #10b981; color: white; border: none; }
-        .form-section .form-buttons .cancel { background-color: #6b7280; color: white; border: none; }
-        .form-section .form-buttons .save:hover { background-color: #065f46; }
-        .form-section .form-buttons .cancel:hover { background-color: #4b5563; }
-        
-        .variables-list { background-color: #111827; border: 1px solid #374151; border-radius: 8px; padding: 12px; margin-top: 10px; font-family: monospace; font-size: 0.9em; }
-        .variables-list span { display: inline-block; margin: 3px; padding: 5px 8px; background-color: #374151; border-radius: 4px; color: #d1d5db; }
-        
-        #specific-student-field { display: none; margin-top: 10px; }
-
-        /* Estilos para la previsualización */
-        .preview-section { padding-top: 20px; }
-        .preview-content { display: none; padding: 20px; border-radius: 12px; background: #111827; margin-top: 15px; position: relative; }
-        .preview-content.active { display: block; }
-
-        .preview-sms { 
-            max-width: 300px; padding: 15px; background: #374151; color: #e1e1e1; font-size: 0.9rem; 
-            border-radius: 12px; border: 1px solid #4b5563; 
-        }
-
-        .preview-web {
-            position: fixed; top: 100px; right: 20px; width: 320px; max-width: 90%; 
-            background: #1f2937; border: 1px solid #4b5563; border-radius: 12px; 
-            padding: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.5); 
-            animation: slideIn 0.5s forwards;
-            z-index: 1000;
-        }
-        .preview-web h4 { margin-top: 0; font-size: 1rem; }
-        .preview-web p { margin-bottom: 0; font-size: 0.85rem; color: #d1d5db; }
-        @keyframes slideIn { from { right: -350px; } to { right: 20px; } }
-    </style>
+    .form-section { display: none; padding: 20px; border: 1px solid #374151; background: #1f2937; border-radius: 12px; margin-top: 20px; }
+    .form-section.visible { display: block; }
+    .form-section label { display: block; margin-top: 15px; font-weight: bold; color: #d1d5db; }
+    .form-section input[type="text"], .form-section select, .form-section textarea { 
+      width: 100%; padding: 10px; margin-top: 5px; border-radius: 4px; border: 1px solid #4b5563; 
+      background: #374151; color: #fff; box-sizing: border-box; 
+    }
+    .form-section input[type="checkbox"] { margin-top: 10px; accent-color: #10b981; }
+    
+    .form-section .form-buttons { margin-top: 20px; text-align: right; }
+    .form-section .form-buttons button { padding: 10px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; transition: background 0.3s; }
+    .form-section .form-buttons .save { background-color: #10b981; color: white; border: none; }
+    .form-section .form-buttons .cancel { background-color: #6b7280; color: white; border: none; }
+    .form-section .form-buttons .save:hover { background-color: #065f46; }
+    .form-section .form-buttons .cancel:hover { background-color: #4b5563; }
+    
+    .variables-list { background-color: #111827; border: 1px solid #374151; border-radius: 8px; padding: 12px; margin-top: 10px; font-family: monospace; font-size: 0.9em; }
+    .variables-list span { display: inline-block; margin: 3px; padding: 5px 8px; background-color: #374151; border-radius: 4px; color: #d1d5db; }
+    
+    #specific-student-field { display: none; margin-top: 10px; }
+  </style>
 </head>
 <body>
 
 <div class="container">
-    <div id="list-view">
-        <div class="toolbar">
-            <h1>Gestión de Plantillas de Cuotas y Pagos</h1>
-            <div>
-                <input type="text" class="search-bar" placeholder="Buscar plantillas...">
-                <button onclick="showForm()">Crear nueva plantilla</button>
-            </div>
-        </div>
-
-        <table class="templates-table">
-            <thead>
-                <tr>
-                    <th>Nombre</th>
-                    <th>Canal</th>
-                    <th>Asunto / Tipo</th>
-                    <th>Destinatarios</th>
-                    <th>Estado</th>
-                    <th>Acciones</th>
-                </tr>
-            </thead>
-            <tbody id="templates-list">
-                <!-- Plantillas de ejemplo para un instituto -->
-                <tr>
-                    <td>Recordatorio Cuota a Vencer</td>
-                    <td>Email/WhatsApp</td>
-                    <td>Recordatorio de pago</td>
-                    <td>Alumnos con una cuota vencida</td>
-                    <td>Activa</td>
-                    <td class="actions">
-                        <button class="edit" onclick="editTemplate('1')">Editar</button>
-                        <button class="delete">Eliminar</button>
-                    </td>
-                </tr>
-                <tr>
-                    <td>Aviso Cuota Vencida (2do)</td>
-                    <td>SMS</td>
-                    <td>¡Importante! Cuota vencida</td>
-                    <td>Alumnos con 2 o más cuotas vencidas</td>
-                    <td>Activa</td>
-                    <td class="actions">
-                        <button class="edit" onclick="editTemplate('2')">Editar</button>
-                        <button class="delete">Eliminar</button>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+  <div id="list-view">
+    <div class="toolbar">
+      <h1>Gestión de Plantillas de Cuotas y Pagos</h1>
+      <div>
+        <input type="text" class="search-bar" placeholder="Buscar plantillas...">
+        <button onclick="showForm()">Crear nueva plantilla</button>
+      </div>
     </div>
 
-    <div id="form-view" class="form-section">
-        <!-- Columna de formulario -->
-        <div>
-            <h2>Crear / Editar Plantilla de Cuota</h2>
-            <form id="template-form">
-                <input type="hidden" id="template-id" name="id">
+    <table class="templates-table">
+      <thead>
+        <tr>
+          <th>Nombre</th>
+          <th>Canal</th>
+          <th>Asunto / Tipo</th>
+          <th>Destinatarios</th>
+          <th>Estado</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody id="templates-list">
+        <!-- Cargado por API -->
+      </tbody>
+    </table>
+  </div>
 
-                <label for="template-name">Nombre de la plantilla</label>
-                <input type="text" id="template-name" name="name" required placeholder="Ej: Recordatorio Cuota a Vencer">
+  <div id="form-view" class="form-section">
+    <h2>Crear / Editar Plantilla de Cuota</h2>
+    <form id="template-form">
+      <label for="template-name">Nombre de la plantilla</label>
+      <input type="text" id="template-name" name="name" required placeholder="Ej: Recordatorio Cuota a Vencer">
 
-                <label for="channel">Canal de notificación</label>
-                <select id="channel" name="channel" required>
-                    <option value="">Seleccione un canal</option>
-                    <option value="sms">SMS</option>
-                    <option value="whatsapp">WhatsApp</option>
-                    <option value="email">Email</option>
-                    <option value="web">Notificación Web</option>
-                </select>
+      <label for="channel">Canal de notificación</label>
+      <select id="channel" name="channel" required>
+        <option value="">Seleccione un canal</option>
+        <option value="sms">SMS</option>
+        <option value="whatsapp">WhatsApp</option>
+        <option value="email">Email</option>
+        <option value="push">Notificación Push (App)</option>
+      </select>
 
-                <label for="subject">Asunto (solo para Email y Web)</label>
-                <input type="text" id="subject" name="subject" placeholder="Ej: Tu cuota está por vencer">
+      <label for="subject">Asunto (solo para Email) / Descripción breve</label>
+      <input type="text" id="subject" name="subject" placeholder="Ej: Tu cuota está por vencer">
 
-                <label for="target-audience">Destinatarios</label>
-                <select id="target-audience" name="target-audience" required>
-                    <option value="">Seleccione los destinatarios</option>
-                    <option value="all-students">Todos los alumnos</option>
-                    <option value="single-student">Alumno específico</option>
-                    <option value="one-overdue">Alumnos con 1 cuota vencida</option>
-                    <option value="two-overdue">Alumnos con 2 cuotas vencidas</option>
-                    <option value="three-overdue">Alumnos con 3 o más cuotas vencidas</option>
-                </select>
+      <label for="target-audience">Destinatarios</label>
+      <select id="target-audience" name="target-audience" required>
+        <option value="">Seleccione los destinatarios</option>
+        <option value="all-students">Todos los alumnos</option>
+        <option value="single-student">Alumno específico</option>
+        <option value="one-overdue">Alumnos con 1 cuota vencida</option>
+        <option value="two-overdue">Alumnos con 2 cuotas vencidas</option>
+        <option value="three-overdue">Alumnos con 3 o más cuotas vencidas</option>
+        <option value="paid-up">Alumnos con pagos al día</option>
+      </select>
 
-                <div id="specific-student-field">
-                    <label for="student-search">Buscar alumno</label>
-                    <input type="text" id="student-search" placeholder="Ej: Juan Pérez">
-                </div>
+      <div id="specific-student-field">
+        <label for="student-search">Buscar alumno</label>
+        <input type="text" id="student-search" placeholder="Ej: Juan Pérez">
+      </div>
 
-                <label for="body">Cuerpo del mensaje</label>
-                <textarea id="body" name="body" rows="8" placeholder="Hola {{nombre_alumno}}, te recordamos que tu cuota número {{numero_cuota}} de {{monto_cuota}} para el curso {{nombre_curso}} vence el {{fecha_vencimiento}}. Puedes pagar en {{link_pago}}." required></textarea>
+      <label for="body">Cuerpo del mensaje</label>
+      <textarea id="body" name="body" rows="8" placeholder="Hola {{nombre_alumno}}, te recordamos que tu cuota número {{numero_cuota}} de {{monto_cuota}} para el curso {{nombre_curso}} vence el {{fecha_vencimiento}}. Puedes pagar en {{link_pago}}." required></textarea>
 
-                <div class="variables-list">
-                    **Variables disponibles:** 
-                    <span>`{{nombre_alumno}}`</span> 
-                    <span>`{{nombre_curso}}`</span>
-                    <span>`{{numero_cuota}}`</span> 
-                    <span>`{{monto_cuota}}`</span> 
-                    <span>`{{fecha_vencimiento}}`</span> 
-                    <span>`{{link_pago}}`</span>
-                    <span>`{{consecuencia_falta_pago}}`</span>
-                    <span>`{{numero_factura}}`</span>
-                </div>
+      <div class="variables-list">
+        <strong>Variables disponibles:</strong> 
+        <span>`{{nombre_alumno}}`</span> 
+        <span>`{{nombre_curso}}`</span>
+        <span>`{{numero_cuota}}`</span> 
+        <span>`{{monto_cuota}}`</span> 
+        <span>`{{fecha_vencimiento}}`</span> 
+        <span>`{{link_pago}}`</span>
+        <span>`{{consecuencia_falta_pago}}`</span>
+        <span>`{{numero_factura}}`</span>
+      </div>
 
-                <label for="status">Estado</label>
-                <input type="checkbox" id="status" name="status" checked> Activa
+      <label for="status">Estado</label>
+      <input type="checkbox" id="status" name="status" checked> Activa
 
-                <div class="form-buttons">
-                    <button type="button" class="cancel" onclick="showList()">Cancelar</button>
-                    <button type="submit" class="save">Guardar</button>
-                </div>
-            </form>
-        </div>
-
-        <!-- Columna de previsualización -->
-        <div class="preview-section">
-            <h2>Vista Previa</h2>
-            <div id="preview-sms" class="preview-content preview-sms"></div>
-            <div id="preview-web" class="preview-content preview-web">
-                <div style="display: flex; align-items: center; margin-bottom: 5px;">
-                    <img src="https://via.placeholder.com/24" alt="icono" style="margin-right: 10px; border-radius: 50%;">
-                    <h4 id="preview-web-subject"></h4>
-                </div>
-                <p id="preview-web-body"></p>
-            </div>
-        </div>
-    </div>
+      <div class="form-buttons">
+        <button type="button" class="cancel" onclick="showList()">Cancelar</button>
+        <button type="submit" class="save">Guardar</button>
+      </div>
+    </form>
+  </div>
 </div>
 
 <script>
-    // Datos de ejemplo para las variables y plantillas
-    const exampleData = {
-        nombre_alumno: "Juan Pérez",
-        nombre_curso: "Programación Web",
-        numero_cuota: "3",
-        monto_cuota: "$5000",
-        fecha_vencimiento: "27/10/2025",
-        link_pago: "https://ejemplo.com/pago/123",
-        consecuencia_falta_pago: "Se aplicará un recargo por mora.",
-        numero_factura: "FAC-001-2025-12345"
+  const API_BASE = 'http://localhost:3000';
+  const defaultHeaders = {
+    'Content-Type': 'application/json',
+    'X-Role': 'admin',
+    'X-User-Id': 'admin1'
+  };
+
+  let editingId = null;
+
+  function mapTarget(value){
+    const map = {
+      'all-students': 'Todos los alumnos',
+      'single-student': 'Alumno específico',
+      'one-overdue': 'Alumnos con 1 cuota vencida',
+      'two-overdue': 'Alumnos con 2 cuotas vencidas',
+      'three-overdue': 'Alumnos con 3 o más cuotas vencidas',
+      'paid-up': 'Alumnos con pagos al día'
     };
+    return map[value] || value || '-';
+  }
 
-    const templateData = {
-        '1': {
-            name: 'Recordatorio Cuota a Vencer',
-            channel: 'whatsapp',
-            subject: 'Recordatorio de pago',
-            target: 'one-overdue',
-            body: 'Hola {{nombre_alumno}}, te recordamos que tu cuota número {{numero_cuota}} de {{monto_cuota}} para el curso {{nombre_curso}} vence el {{fecha_vencimiento}}. Puedes pagar en {{link_pago}}.',
-            status: true
-        },
-        '2': {
-            name: 'Aviso Cuota Vencida (2do)',
-            channel: 'sms',
-            subject: '¡Importante! Cuota vencida',
-            target: 'two-overdue',
-            body: '¡Hola! La cuota {{numero_cuota}} de {{monto_cuota}} para el curso {{nombre_curso}} está vencida. Regulariza tu situación en {{link_pago}}.',
-            status: true
-        }
-    };
-
-    function showForm() {
-        document.getElementById('list-view').style.display = 'none';
-        document.getElementById('form-view').classList.add('visible');
-        updatePreview();
-    }
-
-    function showList() {
-        document.getElementById('list-view').style.display = 'block';
-        document.getElementById('form-view').classList.remove('visible');
-        document.getElementById('preview-sms').classList.remove('active');
-        document.getElementById('preview-web').classList.remove('active');
-    }
-
-    function editTemplate(id) {
-        const template = templateData[id];
-        if (template) {
-            document.getElementById('template-id').value = id;
-            document.getElementById('template-name').value = template.name;
-            document.getElementById('channel').value = template.channel;
-            document.getElementById('subject').value = template.subject;
-            document.getElementById('target-audience').value = template.target;
-            document.getElementById('body').value = template.body;
-            document.getElementById('status').checked = template.status;
-
-            // Mostrar/ocultar el campo de búsqueda de alumno si es necesario
-            document.getElementById('specific-student-field').style.display = (template.target === 'single-student') ? 'block' : 'none';
-        }
-        showForm();
-    }
-
-    function replaceVariables(text, data) {
-        let result = text;
-        for (const key in data) {
-            result = result.replace(new RegExp(`{{${key}}}`, 'g'), data[key]);
-        }
-        return result;
-    }
-
-    function updatePreview() {
-        const channel = document.getElementById('channel').value;
-        const bodyText = document.getElementById('body').value;
-        const subjectText = document.getElementById('subject').value;
-        const bodyPreview = replaceVariables(bodyText, exampleData);
-        const subjectPreview = replaceVariables(subjectText, exampleData);
-
-        // Ocultar todas las previsualizaciones
-        document.querySelectorAll('.preview-content').forEach(el => el.classList.remove('active'));
-
-        if (channel === 'sms') {
-            const smsPreview = document.getElementById('preview-sms');
-            smsPreview.innerHTML = bodyPreview;
-            smsPreview.classList.add('active');
-        } else if (channel === 'web') {
-            const webPreviewSubject = document.getElementById('preview-web-subject');
-            const webPreviewBody = document.getElementById('preview-web-body');
-            webPreviewSubject.innerText = subjectPreview || "Nueva Notificación";
-            webPreviewBody.innerText = bodyPreview || "El cuerpo del mensaje aparecerá aquí.";
-            document.getElementById('preview-web').classList.add('active');
-        }
-    }
-
-    // Event listeners para actualizar la vista previa
-    document.getElementById('channel').addEventListener('change', updatePreview);
-    document.getElementById('body').addEventListener('input', updatePreview);
-    document.getElementById('subject').addEventListener('input', updatePreview);
-
-    // Lógica para mostrar/ocultar el campo de búsqueda de alumno
-    document.getElementById('target-audience').addEventListener('change', function() {
-        const specificStudentField = document.getElementById('specific-student-field');
-        if (this.value === 'single-student') {
-            specificStudentField.style.display = 'block';
-        } else {
-            specificStudentField.style.display = 'none';
-        }
+  async function loadTemplates(){
+    const res = await fetch(`${API_BASE}/api/templates`, { headers: defaultHeaders });
+    const data = await res.json();
+    const tbody = document.getElementById('templates-list');
+    tbody.innerHTML = '';
+    data.forEach(t => {
+      const tr = document.createElement('tr');
+      const channelText = Array.isArray(t.channel) ? t.channel.join('/') : t.channel;
+      tr.innerHTML = `
+        <td>${t.name}</td>
+        <td>${channelText || '-'}</td>
+        <td>${t.subject || '-'}</td>
+        <td>${mapTarget(t.target)}</td>
+        <td>${t.active ? 'Activa' : 'Inactiva'}</td>
+        <td class="actions">
+          <button class="edit" data-id="${t.id}">Editar</button>
+          <button class="delete" data-id="${t.id}">Eliminar</button>
+        </td>
+      `;
+      tbody.appendChild(tr);
     });
 
-    document.getElementById('template-form').addEventListener('submit', function(event) {
-        event.preventDefault();
-        alert('Plantilla guardada (simulado)!');
-        showList();
+    tbody.querySelectorAll('button.edit').forEach(btn=>{
+      btn.addEventListener('click', () => showForm(Number(btn.dataset.id)));
     });
+    tbody.querySelectorAll('button.delete').forEach(btn=>{
+      btn.addEventListener('click', () => deleteTemplate(Number(btn.dataset.id)));
+    });
+  }
+
+  async function showForm(id=null) {
+    document.getElementById('list-view').style.display = 'none';
+    document.getElementById('form-view').classList.add('visible');
+    const form = document.getElementById('template-form');
+    form.reset();
+    document.getElementById('specific-student-field').style.display = 'none';
+    editingId = id;
+
+    if(id){
+      // buscar la plantilla actual desde API (simple)
+      const res = await fetch(`${API_BASE}/api/templates`, { headers: defaultHeaders });
+      const list = await res.json();
+      const t = list.find(x => x.id === id);
+      if(t){
+        document.getElementById('template-name').value = t.name || '';
+        document.getElementById('channel').value = Array.isArray(t.channel) ? (t.channel[0] || '') : (t.channel || '');
+        document.getElementById('subject').value = t.subject || '';
+        document.getElementById('target-audience').value = t.target || '';
+        document.getElementById('body').value = t.body || '';
+        document.getElementById('status').checked = !!t.active;
+        if(t.target === 'single-student'){
+          document.getElementById('specific-student-field').style.display = 'block';
+        }
+      }
+    }
+  }
+
+  function showList() {
+    document.getElementById('list-view').style.display = 'block';
+    document.getElementById('form-view').classList.remove('visible');
+  }
+
+  async function deleteTemplate(id){
+    if(!confirm('¿Eliminar plantilla?')) return;
+    const res = await fetch(`${API_BASE}/api/templates/${id}`, { method: 'DELETE', headers: defaultHeaders });
+    if(res.ok){
+      await loadTemplates();
+    } else {
+      alert('No se pudo eliminar');
+    }
+  }
+
+  document.getElementById('target-audience').addEventListener('change', function() {
+    var specificStudentField = document.getElementById('specific-student-field');
+    if (this.value === 'single-student') {
+      specificStudentField.style.display = 'block';
+    } else {
+      specificStudentField.style.display = 'none';
+    }
+  });
+
+  document.getElementById('template-form').addEventListener('submit', async function(event) {
+    event.preventDefault();
+    const payload = {
+      name: document.getElementById('template-name').value.trim(),
+      channel: document.getElementById('channel').value,
+      subject: document.getElementById('subject').value.trim(),
+      target: document.getElementById('target-audience').value,
+      body: document.getElementById('body').value.trim(),
+      active: document.getElementById('status').checked
+    };
+    const url = editingId ? `${API_BASE}/api/templates/${editingId}` : `${API_BASE}/api/templates`;
+    const method = editingId ? 'PUT' : 'POST';
+
+    const res = await fetch(url, {
+      method,
+      headers: defaultHeaders,
+      body: JSON.stringify(payload)
+    });
+
+    if(res.ok){
+      alert('Plantilla guardada!');
+      editingId = null;
+      showList();
+      await loadTemplates();
+    } else {
+      const err = await res.json().catch(()=> ({}));
+      alert('Error al guardar: ' + (err.error || res.statusText));
+    }
+  });
+
+  // Init
+  (async function init(){
+    await loadTemplates();
+  })();
 </script>
 
 </body>
