@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Notificaciones ISDM</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #1e2837;
+            margin: 0;
+            padding: 0;
+            color: #ecf0f1;
+        }
+        .header-top {
+            background-color: #253342;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #3a4756;
+        }
+        .header-title {
+            font-size: 22px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+        .header-logo {
+            width: 80px;
+            height: auto;
+            margin-right: 15px;
+        }
+        .user-roles button {
+            background-color: #3a4756;
+            color: #ecf0f1;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-left: 10px;
+            font-size: 14px;
+        }
+        .user-roles button.active {
+            background-color: #27ae60;
+        }
+        .screen {
+            display: none;
+            padding: 20px;
+        }
+        .screen.active {
+            display: block;
+        }
+        .container {
+            display: flex;
+            gap: 20px;
+            max-width: 1400px;
+            margin: 20px auto;
+        }
+        .sidebar {
+            background-color: #253342;
+            padding: 20px;
+            border-radius: 10px;
+            width: 350px;
+            flex-shrink: 0;
+        }
+        .sidebar-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            font-size: 18px;
+            font-weight: bold;
+            color: #27ae60;
+        }
+        .sidebar-header img {
+            width: 40px;
+            margin-right: 10px;
+        }
+        .sidebar-title-recents {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        .sidebar-title-recents svg {
+            margin-right: 8px;
+        }
+        .sidebar-item {
+            display: flex;
+            align-items: flex-start;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            background-color: #3a4756;
+        }
+        .sidebar-item-green { background-color: #27ae60; }
+        .sidebar-item-yellow { background-color: #f1c40f; color: #333; }
+        .sidebar-item-red { background-color: #e74c3c; }
+        .sidebar-item-blue { background-color: #3498db; }
+        .sidebar-item-gray { background-color: #7f8c8d; }
+
+        .sidebar-icon {
+            margin-right: 12px;
+            font-size: 20px;
+            line-height: 1;
+        }
+        .sidebar-text div {
+            font-weight: bold;
+            font-size: 15px;
+        }
+        .sidebar-text small {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.7);
+        }
+        .sidebar-item-yellow .sidebar-text small { color: rgba(0, 0, 0, 0.7); }
+
+        .main-content {
+            flex-grow: 1;
+        }
+        .header-cuotas {
+            display: flex;
+            justify-content: space-between;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        .cuota-card {
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            flex-grow: 1;
+            min-width: 180px;
+        }
+        .cuota-card.green { background-color: #27ae60; }
+        .cuota-card.yellow { background-color: #f1c40f; color: #333; }
+        .cuota-card.red { background-color: #e74c3c; }
+        .cuota-card-title {
+            font-size: 14px;
+            margin-bottom: 5px;
+            opacity: 0.8;
+        }
+        .cuota-card-value {
+            font-size: 22px;
+            font-weight: bold;
+        }
+        .cuota-card.yellow .cuota-card-value { color: #333; }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #27ae60;
+        }
+        .preferences-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        .option-item {
+            background-color: #3a4756;
+            padding: 18px;
+            border-radius: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .option-item.inactive { opacity: 0.7; }
+        .option-item div:first-child {
+            font-size: 16px;
+            font-weight: bold;
+        }
+        .option-item small {
+            display: block;
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.6);
+            margin-top: 4px;
+        }
+        .horario-no-molestar {
+            background-color: #3a4756;
+            padding: 18px;
+            border-radius: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        .horario-no-molestar select {
+            background-color: #253342;
+            color: #ecf0f1;
+            border: 1px solid #555;
+            padding: 8px 10px;
+            border-radius: 5px;
+            font-size: 14px;
+            margin: 0 5px;
+        }
+        .horario-no-molestar span {
+            font-size: 16px;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        .switch-container {
+            position: relative;
+            display: inline-block;
+            width: 45px;
+            height: 25px;
+        }
+        .switch-container input { display: none; }
+        .switch {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+        .switch:before {
+            position: absolute;
+            content: "";
+            height: 21px;
+            width: 21px;
+            left: 2px;
+            bottom: 2px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        input:checked + .switch { background-color: #27ae60; }
+        input:checked + .switch:before { transform: translateX(20px); }
+
+        /* Estilos específicos para la tabla del administrador */
+        .admin-table-container {
+            background-color: #253342;
+            padding: 20px;
+            border-radius: 10px;
+        }
+        .admin-table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .admin-table-header h2 {
+            margin: 0;
+            font-size: 20px;
+            font-weight: bold;
+            color: #ecf0f1;
+        }
+        .admin-table-header .search-input {
+            background-color: #3a4756;
+            border: none;
+            color: #ecf0f1;
+            padding: 8px 12px;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        .admin-table-header .create-button {
+            background-color: #27ae60;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+            text-align: left;
+        }
+        th, td {
+            padding: 15px;
+            border-bottom: 1px solid #3a4756;
+        }
+        th {
+            background-color: #3a4756;
+            font-weight: bold;
+            color: #bdc3c7;
+        }
+        td {
+            color: #ecf0f1;
+        }
+        .table-actions {
+            display: flex;
+            gap: 5px;
+        }
+        .table-actions button {
+            background: none;
+            border: none;
+            color: #3498db;
+            cursor: pointer;
+            font-size: 14px;
+            text-decoration: underline;
+        }
+        .table-actions button.delete {
+            color: #e74c3c;
+        }
+
+        @media (max-width: 900px) {
+            .container {
+                flex-direction: column;
+            }
+            .sidebar {
+                width: 100%;
+            }
+            .preferences-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header-top">
+        <div class="header-title" onclick="showScreen('student-dashboard')">
+            <img src="https://isdm.rdb-ti.com/utils/images/logo_principal.png" alt="Logo ISDM" class="header-logo">
+            Panel de Notificaciones
+        </div>
+        <div class="user-roles">
+            <button id="student-btn" class="active" onclick="showScreen('student-dashboard')">Alumno</button>
+            <button id="admin-btn" onclick="showScreen('admin-dashboard')">Administrador</button>
+        </div>
+    </div>
+
+    <div id="student-dashboard" class="screen active">
+        <div class="container">
+            <div class="sidebar">
+                <div class="sidebar-header">
+                    <img src="https://isdm.rdb-ti.com/utils/images/logo_principal.png" alt="Logo ISDM">
+                    ISDM
+                </div>
+                <div class="sidebar-title-recents">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-bell"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+                    Notificaciones Recientes
+                </div>
+                <div class="sidebar-item sidebar-item-green">
+                    <span class="sidebar-icon">✅</span>
+                    <div class="sidebar-text">
+                        <div>Pago de cuota de Octubre</div>
+                        <small>confirmado. Hace 5 min</small>
+                    </div>
+                </div>
+                <div class="sidebar-item sidebar-item-yellow">
+                    <span class="sidebar-icon">⚠</span>
+                    <div class="sidebar-text">
+                        <div>La cuota de Noviembre vence mañana.</div>
+                        <small>Ayer, 10:30</small>
+                    </div>
+                </div>
+                <div class="sidebar-item sidebar-item-blue">
+                    <span class="sidebar-icon">ℹ</span>
+                    <div class="sidebar-text">
+                        <div>Configuración guardada</div>
+                        <small>correctamente. 01/09/2025</small>
+                    </div>
+                </div>
+                <div class="sidebar-item sidebar-item-yellow">
+                    <span class="sidebar-icon">⚠</span>
+                    <div class="sidebar-text">
+                        <div>Nuevo curso disponible en el catálogo.</div>
+                        <small>28/08/2025</small>
+                    </div>
+                </div>
+                <div class="sidebar-item sidebar-item-gray">
+                    <span class="sidebar-icon">📄</span>
+                    <div class="sidebar-text">
+                        <div>Recordatorio de pago</div>
+                        <small>automático fallido. 15/08/2025</small>
+                    </div>
+                </div>
+                <div class="sidebar-item sidebar-item-red">
+                    <span class="sidebar-icon">❌</span>
+                    <div class="sidebar-text">
+                        <div>¡Cuota de Agosto Vencida!</div>
+                        <small>Paga para evitar recargos. Ayer, 09:00</small>
+                    </div>
+                </div>
+            </div>
+            <div class="main-content">
+                <div class="section-title">Recibidas (Estado de Cuotas)</div>
+                <div class="header-cuotas">
+                    <div class="cuota-card green">
+                        <div class="cuota-card-title">Último Pago</div>
+                        <div class="cuota-card-value">2025-10-15</div>
+                    </div>
+                    <div class="cuota-card yellow">
+                        <div class="cuota-card-title">Cuota Próxima a Vencer</div>
+                        <div class="cuota-card-value">2025-11-30</div>
+                    </div>
+                    <div class="cuota-card red">
+                        <div class="cuota-card-title">Cuota Vencida</div>
+                        <div class="cuota-card-value">2025-10-01</div>
+                    </div>
+                </div>
+                <div class="section-title">Preferencias por Canal de Envío</div>
+                <div class="preferences-grid">
+                    <div class="option-item">
+                        <div>Notificaciones en la App<small>Avisos en tiempo real dentro del sistema.</small></div>
+                        <label class="switch-container"><input type="checkbox" checked><span class="switch"></span></label>
+                    </div>
+                    <div class="option-item">
+                        <div>Correo Electrónico<small>Recibir resúmenes y alertas importantes por email.</small></div>
+                        <label class="switch-container"><input type="checkbox" checked><span class="switch"></span></label>
+                    </div>
+                    <div class="option-item inactive">
+                        <div>SMS<small>Alertas críticas por mensaje de texto.</small></div>
+                        <label class="switch-container"><input type="checkbox"><span class="switch"></span></label>
+                    </div>
+                    <div class="option-item">
+                        <div>WhatsApp<small>Comunicación a través de tu número registrado.</small></div>
+                        <label class="switch-container"><input type="checkbox" checked><span class="switch"></span></label>
+                    </div>
+                </div>
+                <div class="section-title">Horario "No Molestar"</div>
+                <div class="horario-no-molestar">
+                    <span>Desde las:</span>
+                    <select>
+                        <option>00:00</option><option>...</option><option>08:00</option><option>...</option><option>23:00</option>
+                    </select>
+                    <span>Hasta las:</span>
+                    <select>
+                        <option>00:00</option><option>...</option><option>08:00</option><option>...</option><option>21:00</option>
+                    </select>
+                </div>
+                <div class="section-title">Preferencias por Tipo de Evento</div>
+                <div class="preferences-grid">
+                    <div class="option-item">
+                        <div>Cuota próxima a vencer<small>Aviso 7 días antes de la fecha límite.</small></div>
+                        <label class="switch-container"><input type="checkbox" checked><span class="switch"></span></label>
+                    </div>
+                    <div class="option-item">
+                        <div>Cuota vencida<small>Alerta sobre pagos pendientes de inmediato.</small></div>
+                        <label class="switch-container"><input type="checkbox" checked><span class="switch"></span></label>
+                    </div>
+                    <div class="option-item">
+                        <div>Pago confirmado<small>Notificación al procesarse el pago.</small></div>
+                        <label class="switch-container"><input type="checkbox" checked><span class="switch"></span></label>
+                    </div>
+                     <div class="option-item">
+                        <div>Cupón generado<small>Notificación cuando se genera un cupón de pago.</small></div>
+                        <label class="switch-container"><input type="checkbox" checked><span class="switch"></span></label>
+                    </div>
+                    <div class="option-item">
+                        <div>Cupón expirado<small>Notificación cuando un cupón de pago ha expirado.</small></div>
+                        <label class="switch-container"><input type="checkbox" checked><span class="switch"></span></label>
+                    </div>
+                    <div class="option-item">
+                        <div>Novedades del curso<small>Información sobre nuevas clases o anuncios.</small></div>
+                        <label class="switch-container"><input type="checkbox" checked><span class="switch"></span></label>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="admin-dashboard" class="screen">
+        <div class="container">
+            <div class="main-content" style="width: 100%;">
+                <div class="admin-table-header">
+                    <h2>Gestión de Plantillas de Cuotas y Pagos</h2>
+                    <div>
+                        <input type="text" class="search-input" placeholder="Buscar plantillas...">
+                        <button class="create-button">Crear nueva plantilla</button>
+                    </div>
+                </div>
+                <div class="admin-table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Nombre</th>
+                                <th>Canal</th>
+                                <th>Asunto / Tipo</th>
+                                <th>Destinatarios</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Recordatorio Cuota a Vencer</td>
+                                <td>Email/WhatsApp</td>
+                                <td>Recordatorio de pago</td>
+                                <td>Alumnos con una cuota vencida</td>
+                                <td>Activa</td>
+                                <td class="table-actions">
+                                    <button>Editar</button>
+                                    <button class="delete">Eliminar</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Aviso Cuota Vencida (2do)</td>
+                                <td>SMS</td>
+                                <td>¡Importante! Cuota vencida</td>
+                                <td>Alumnos con 2 o más cuotas vencidas</td>
+                                <td>Activa</td>
+                                <td class="table-actions">
+                                    <button>Editar</button>
+                                    <button class="delete">Eliminar</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(screen => {
+                screen.classList.remove('active');
+            });
+            document.getElementById(screenId).classList.add('active');
+
+            document.querySelectorAll('.user-roles button').forEach(button => {
+                button.classList.remove('active');
+            });
+            if (screenId === 'student-dashboard') {
+                document.getElementById('student-btn').classList.add('active');
+            } else if (screenId === 'admin-dashboard') {
+                document.getElementById('admin-btn').classList.add('active');
+            }
+        }
+    </script>
+</body>
+</html>
