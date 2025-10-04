@@ -1,57 +1,231 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Gestión de Plantillas de Notificaciones de Cuotas</title>
-  <style>
-    /* Estilos basados en el código de referencia */
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: sans-serif; }
-    body { background-color: #1f2937; color: #fff; padding: 20px; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gestión de Plantillas de Cuotas y Pagos</title>
 
-    .container { max-width: 1000px; margin: auto; background: #111827; padding: 20px; border-radius: 12px; box-shadow: inset 0 0 10px #000; }
-    h1, h2 { color: #f1f1f1; margin-bottom: 10px; border-bottom: 2px solid #047857; padding-bottom: 5px; }
+<style>
+  /* Estilo base (más aire y suavidad) */
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: sans-serif; }
+  body {
+    background-color: #1f2937;
+    color: #fff;
+    padding: 40px 20px;
+    min-height: 100vh;
+  }
 
-    .toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-    .toolbar button { padding: 10px 15px; border: none; background-color: #047857; color: white; border-radius: 5px; cursor: pointer; transition: background 0.3s; }
-    .toolbar button:hover { background-color: #10b981; }
-    
-    .search-bar { padding: 8px; border-radius: 4px; border: 1px solid #374151; background: #374151; color: white; }
+  .container {
+    max-width: 1200px;
+    margin: auto;
+    background: #111827;
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: inset 0 0 15px #000;
+  }
 
-    .templates-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-    .templates-table th, .templates-table td { text-align: left; padding: 12px; border-bottom: 1px solid #374151; }
-    .templates-table th { background-color: #1f2937; }
-    .templates-table tr:hover { background-color: #2b3748; }
-    .templates-table .actions button { margin-right: 5px; padding: 6px 10px; border: none; border-radius: 3px; cursor: pointer; transition: background 0.3s; }
-    .templates-table .actions .edit { background-color: #065f46; color: white; }
-    .templates-table .actions .delete { background-color: #be123c; color: white; }
-    .templates-table .actions .edit:hover { background-color: #10b981; }
-    .templates-table .actions .delete:hover { background-color: #ef4444; }
+  h1 {
+    color: #a7f3d0;
+    font-size: 2rem;
+    margin-bottom: 15px;
+  }
 
-    .form-section { display: none; padding: 20px; border: 1px solid #374151; background: #1f2937; border-radius: 12px; margin-top: 20px; }
-    .form-section.visible { display: block; }
-    .form-section label { display: block; margin-top: 15px; font-weight: bold; color: #d1d5db; }
-    .form-section input[type="text"], .form-section select, .form-section textarea { 
-      width: 100%; padding: 10px; margin-top: 5px; border-radius: 4px; border: 1px solid #4b5563; 
-      background: #374151; color: #fff; box-sizing: border-box; 
-    }
-    .form-section input[type="checkbox"] { margin-top: 10px; accent-color: #10b981; }
-    
-    .form-section .form-buttons { margin-top: 20px; text-align: right; }
-    .form-section .form-buttons button { padding: 10px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; transition: background 0.3s; }
-    .form-section .form-buttons .save { background-color: #10b981; color: white; border: none; }
-    .form-section .form-buttons .cancel { background-color: #6b7280; color: white; border: none; }
-    .form-section .form-buttons .save:hover { background-color: #065f46; }
-    .form-section .form-buttons .cancel:hover { background-color: #4b5563; }
-    
-    .variables-list { background-color: #111827; border: 1px solid #374151; border-radius: 8px; padding: 12px; margin-top: 10px; font-family: monospace; font-size: 0.9em; }
-    .variables-list span { display: inline-block; margin: 3px; padding: 5px 8px; background-color: #374151; border-radius: 4px; color: #d1d5db; }
-    
-    #specific-student-field { display: none; margin-top: 10px; }
-  </style>
+  h2 {
+    color: #f1f1f1;
+    margin-top: 25px;
+    margin-bottom: 10px;
+    border-bottom: 2px solid #047857;
+    padding-bottom: 5px;
+  }
+
+  /* Barra superior */
+  .toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+    gap: 10px;
+  }
+
+  .toolbar button {
+    padding: 12px 20px;
+    border: none;
+    background-color: #047857;
+    color: white;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background 0.3s;
+  }
+  .toolbar button:hover { background-color: #10b981; }
+
+  .search-bar {
+    padding: 10px 15px;
+    border-radius: 6px;
+    border: 1px solid #374151;
+    background: #1f2937;
+    color: white;
+    width: 260px;
+  }
+
+  /* Tabla fluida (sin scroll lateral) */
+  .templates-table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: auto;
+    margin-top: 20px;
+  }
+
+  .templates-table th, .templates-table td {
+    text-align: left;
+    padding: 14px 12px;
+    border-bottom: 1px solid #374151;
+  }
+
+  .templates-table th {
+    background-color: #065f46;
+    color: #fff;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .templates-table tr:hover {
+    background-color: #0b3b2f;
+    transition: background 0.3s;
+  }
+
+  .actions button {
+    margin-right: 6px;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 5px;
+    font-weight: bold;
+    cursor: pointer;
+  }
+  .edit { background-color: #047857; color: white; }
+  .delete { background-color: #be123c; color: white; }
+  .edit:hover { background-color: #10b981; }
+  .delete:hover { background-color: #ef4444; }
+
+  .status-active {
+    background: #10b981;
+    color: #fff;
+    padding: 5px 10px;
+    border-radius: 8px;
+    font-weight: bold;
+  }
+  .status-inactive {
+    background: #6b7280;
+    color: #fff;
+    padding: 5px 10px;
+    border-radius: 8px;
+    font-weight: bold;
+  }
+
+  /* Sección formulario */
+  .form-section {
+    display: none;
+    padding: 30px;
+    border: 1px solid #374151;
+    background: #1f2937;
+    border-radius: 12px;
+    margin-top: 25px;
+  }
+
+  .form-section.visible { display: block; }
+
+  .form-section label {
+    display: block;
+    margin-top: 20px;
+    font-weight: bold;
+    color: #d1d5db;
+  }
+
+  .form-section input[type="text"],
+  .form-section select,
+  .form-section textarea {
+    width: 100%;
+    padding: 12px;
+    margin-top: 6px;
+    border-radius: 6px;
+    border: 1px solid #4b5563;
+    background: #374151;
+    color: #fff;
+    font-size: 1rem;
+  }
+
+  .form-section textarea { min-height: 150px; }
+
+  .form-section input[type="checkbox"] { margin-top: 10px; accent-color: #10b981; }
+
+  .form-buttons {
+    margin-top: 25px;
+    text-align: right;
+  }
+
+  .form-buttons button {
+    padding: 12px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    margin-left: 8px;
+  }
+
+  .save { background-color: #10b981; color: white; border: none; }
+  .cancel { background-color: #6b7280; color: white; border: none; }
+  .save:hover { background-color: #065f46; }
+  .cancel:hover { background-color: #4b5563; }
+
+  /* Variables */
+  .variables-list {
+    background-color: #111827;
+    border: 1px solid #374151;
+    border-radius: 8px;
+    padding: 12px;
+    margin-top: 10px;
+    font-family: monospace;
+    font-size: 0.9em;
+  }
+
+  .variables-list span {
+    display: inline-block;
+    margin: 3px;
+    padding: 6px 10px;
+    background-color: #374151;
+    border-radius: 4px;
+    color: #d1d5db;
+  }
+
+  /* Campo alumno */
+  #specific-student-field { display: none; margin-top: 15px; }
+
+  /* Toast mensajes */
+  #toast {
+    position: fixed;
+    top: 25px;
+    right: 25px;
+    background: #10b981;
+    color: white;
+    padding: 15px 25px;
+    border-radius: 10px;
+    display: none;
+    font-weight: bold;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+    z-index: 999;
+  }
+
+  /* Responsive */
+  @media(max-width: 768px){
+    .container { padding: 25px; }
+    .toolbar { flex-direction: column; align-items: stretch; }
+    .search-bar { width: 100%; }
+    .templates-table th, .templates-table td { font-size: 0.9rem; }
+  }
+</style>
 </head>
-<body>
 
+<body>
 <div class="container">
   <div id="list-view">
     <div class="toolbar">
@@ -62,74 +236,72 @@
       </div>
     </div>
 
+    <h2 id="templates-count">0 plantillas cargadas</h2>
+
     <table class="templates-table">
       <thead>
         <tr>
           <th>Nombre</th>
           <th>Canal</th>
-          <th>Asunto / Tipo</th>
+          <th>Asunto</th>
           <th>Destinatarios</th>
           <th>Estado</th>
+          <th>Última Edición</th>
           <th>Acciones</th>
         </tr>
       </thead>
-      <tbody id="templates-list">
-        <!-- Cargado por API -->
-      </tbody>
+      <tbody id="templates-list"></tbody>
     </table>
   </div>
 
   <div id="form-view" class="form-section">
-    <h2>Crear / Editar Plantilla de Cuota</h2>
+    <h2>Crear / Editar Plantilla</h2>
     <form id="template-form">
-      <label for="template-name">Nombre de la plantilla</label>
-      <input type="text" id="template-name" name="name" required placeholder="Ej: Recordatorio Cuota a Vencer">
+      <label>Nombre de la plantilla</label>
+      <input type="text" id="template-name" required>
 
-      <label for="channel">Canal de notificación</label>
-      <select id="channel" name="channel" required>
+      <label>Canal de notificación</label>
+      <select id="channel" required>
         <option value="">Seleccione un canal</option>
         <option value="sms">SMS</option>
         <option value="whatsapp">WhatsApp</option>
         <option value="email">Email</option>
-        <option value="push">Notificación Push (App)</option>
+        <option value="push">Notificación Push</option>
       </select>
 
-      <label for="subject">Asunto (solo para Email) / Descripción breve</label>
-      <input type="text" id="subject" name="subject" placeholder="Ej: Tu cuota está por vencer">
+      <label>Asunto / descripción breve</label>
+      <input type="text" id="subject" placeholder="Ej: Tu cuota está por vencer">
 
-      <label for="target-audience">Destinatarios</label>
-      <select id="target-audience" name="target-audience" required>
+      <label>Destinatarios</label>
+      <select id="target-audience" required>
         <option value="">Seleccione los destinatarios</option>
         <option value="all-students">Todos los alumnos</option>
         <option value="single-student">Alumno específico</option>
-        <option value="one-overdue">Alumnos con 1 cuota vencida</option>
-        <option value="two-overdue">Alumnos con 2 cuotas vencidas</option>
-        <option value="three-overdue">Alumnos con 3 o más cuotas vencidas</option>
-        <option value="paid-up">Alumnos con pagos al día</option>
+        <option value="one-overdue">1 cuota vencida</option>
+        <option value="two-overdue">2 cuotas vencidas</option>
+        <option value="three-overdue">3 o más cuotas vencidas</option>
+        <option value="paid-up">Pagos al día</option>
       </select>
 
       <div id="specific-student-field">
-        <label for="student-search">Buscar alumno</label>
+        <label>Buscar alumno</label>
         <input type="text" id="student-search" placeholder="Ej: Juan Pérez">
       </div>
 
-      <label for="body">Cuerpo del mensaje</label>
-      <textarea id="body" name="body" rows="8" placeholder="Hola {{nombre_alumno}}, te recordamos que tu cuota número {{numero_cuota}} de {{monto_cuota}} para el curso {{nombre_curso}} vence el {{fecha_vencimiento}}. Puedes pagar en {{link_pago}}." required></textarea>
+      <label>Cuerpo del mensaje</label>
+      <textarea id="body" placeholder="Hola {{nombre_alumno}}, te recordamos que tu cuota vence el {{fecha_vencimiento}}."></textarea>
 
       <div class="variables-list">
         <strong>Variables disponibles:</strong> 
-        <span>`{{nombre_alumno}}`</span> 
-        <span>`{{nombre_curso}}`</span>
-        <span>`{{numero_cuota}}`</span> 
-        <span>`{{monto_cuota}}`</span> 
-        <span>`{{fecha_vencimiento}}`</span> 
-        <span>`{{link_pago}}`</span>
-        <span>`{{consecuencia_falta_pago}}`</span>
-        <span>`{{numero_factura}}`</span>
+        <span>{{nombre_alumno}}</span> 
+        <span>{{nombre_curso}}</span> 
+        <span>{{numero_cuota}}</span> 
+        <span>{{monto_cuota}}</span> 
+        <span>{{fecha_vencimiento}}</span> 
+        <span>{{link_pago}}</span>
       </div>
 
-      <label for="status">Estado</label>
-      <input type="checkbox" id="status" name="status" checked> Activa
+      <label><input type="checkbox" id="status" checked> Activa</label>
 
       <div class="form-buttons">
         <button type="button" class="cancel" onclick="showList()">Cancelar</button>
@@ -139,82 +311,72 @@
   </div>
 </div>
 
+<div id="toast"></div>
+
 <script>
   const API_BASE = 'http://localhost:3000';
-  const defaultHeaders = {
-    'Content-Type': 'application/json',
-    'X-Role': 'admin',
-    'X-User-Id': 'admin1'
-  };
-
+  const headers = { 'Content-Type': 'application/json', 'X-Role': 'admin', 'X-User-Id': 'admin1' };
   let editingId = null;
 
-  function mapTarget(value){
-    const map = {
-      'all-students': 'Todos los alumnos',
-      'single-student': 'Alumno específico',
-      'one-overdue': 'Alumnos con 1 cuota vencida',
-      'two-overdue': 'Alumnos con 2 cuotas vencidas',
-      'three-overdue': 'Alumnos con 3 o más cuotas vencidas',
-      'paid-up': 'Alumnos con pagos al día'
-    };
-    return map[value] || value || '-';
-  }
+  const showToast = (msg, color = '#10b981') => {
+    const toast = document.getElementById('toast');
+    toast.textContent = msg;
+    toast.style.background = color;
+    toast.style.display = 'block';
+    setTimeout(() => toast.style.display = 'none', 2500);
+  };
 
-  async function loadTemplates(){
-    const res = await fetch(`${API_BASE}/api/templates`, { headers: defaultHeaders });
+  const mapTarget = (v) => ({
+    'all-students': 'Todos los alumnos',
+    'single-student': 'Alumno específico',
+    'one-overdue': '1 cuota vencida',
+    'two-overdue': '2 cuotas vencidas',
+    'three-overdue': '3 o más cuotas vencidas',
+    'paid-up': 'Pagos al día'
+  }[v] || v);
+
+  async function loadTemplates() {
+    const res = await fetch(`${API_BASE}/api/templates`, { headers });
     const data = await res.json();
     const tbody = document.getElementById('templates-list');
     tbody.innerHTML = '';
     data.forEach(t => {
       const tr = document.createElement('tr');
-      const channelText = Array.isArray(t.channel) ? t.channel.join('/') : t.channel;
       tr.innerHTML = `
         <td>${t.name}</td>
-        <td>${channelText || '-'}</td>
+        <td>${t.channel}</td>
         <td>${t.subject || '-'}</td>
         <td>${mapTarget(t.target)}</td>
-        <td>${t.active ? 'Activa' : 'Inactiva'}</td>
+        <td><span class="${t.active ? 'status-active' : 'status-inactive'}">${t.active ? 'Activa' : 'Inactiva'}</span></td>
+        <td>${t.updated_at ? new Date(t.updated_at).toLocaleDateString('es-AR') : '-'}</td>
         <td class="actions">
-          <button class="edit" data-id="${t.id}">Editar</button>
-          <button class="delete" data-id="${t.id}">Eliminar</button>
-        </td>
-      `;
+          <button class="edit" onclick="showForm(${t.id})">Editar</button>
+          <button class="delete" onclick="deleteTemplate(${t.id})">Eliminar</button>
+        </td>`;
       tbody.appendChild(tr);
     });
-
-    tbody.querySelectorAll('button.edit').forEach(btn=>{
-      btn.addEventListener('click', () => showForm(Number(btn.dataset.id)));
-    });
-    tbody.querySelectorAll('button.delete').forEach(btn=>{
-      btn.addEventListener('click', () => deleteTemplate(Number(btn.dataset.id)));
-    });
+    document.getElementById('templates-count').textContent = `${data.length} plantillas cargadas`;
   }
 
-  async function showForm(id=null) {
+  function showForm(id = null) {
     document.getElementById('list-view').style.display = 'none';
     document.getElementById('form-view').classList.add('visible');
-    const form = document.getElementById('template-form');
-    form.reset();
-    document.getElementById('specific-student-field').style.display = 'none';
+    document.getElementById('template-form').reset();
     editingId = id;
+    if (id) loadTemplate(id);
+  }
 
-    if(id){
-      // buscar la plantilla actual desde API (simple)
-      const res = await fetch(`${API_BASE}/api/templates`, { headers: defaultHeaders });
-      const list = await res.json();
-      const t = list.find(x => x.id === id);
-      if(t){
-        document.getElementById('template-name').value = t.name || '';
-        document.getElementById('channel').value = Array.isArray(t.channel) ? (t.channel[0] || '') : (t.channel || '');
-        document.getElementById('subject').value = t.subject || '';
-        document.getElementById('target-audience').value = t.target || '';
-        document.getElementById('body').value = t.body || '';
-        document.getElementById('status').checked = !!t.active;
-        if(t.target === 'single-student'){
-          document.getElementById('specific-student-field').style.display = 'block';
-        }
-      }
+  async function loadTemplate(id) {
+    const res = await fetch(`${API_BASE}/api/templates`, { headers });
+    const data = await res.json();
+    const t = data.find(x => x.id === id);
+    if (t) {
+      document.getElementById('template-name').value = t.name;
+      document.getElementById('channel').value = t.channel;
+      document.getElementById('subject').value = t.subject;
+      document.getElementById('target-audience').value = t.target;
+      document.getElementById('body').value = t.body;
+      document.getElementById('status').checked = !!t.active;
     }
   }
 
@@ -223,27 +385,26 @@
     document.getElementById('form-view').classList.remove('visible');
   }
 
-  async function deleteTemplate(id){
-    if(!confirm('¿Eliminar plantilla?')) return;
-    const res = await fetch(`${API_BASE}/api/templates/${id}`, { method: 'DELETE', headers: defaultHeaders });
-    if(res.ok){
-      await loadTemplates();
-    } else {
-      alert('No se pudo eliminar');
-    }
+  async function deleteTemplate(id) {
+    if (!confirm('¿Eliminar plantilla?')) return;
+    const res = await fetch(`${API_BASE}/api/templates/${id}`, { method: 'DELETE', headers });
+    if (res.ok) { showToast('Plantilla eliminada'); loadTemplates(); }
+    else showToast('Error al eliminar', '#ef4444');
   }
 
-  document.getElementById('target-audience').addEventListener('change', function() {
-    var specificStudentField = document.getElementById('specific-student-field');
-    if (this.value === 'single-student') {
-      specificStudentField.style.display = 'block';
-    } else {
-      specificStudentField.style.display = 'none';
-    }
+  document.querySelector('.search-bar').addEventListener('input', e => {
+    const term = e.target.value.toLowerCase();
+    document.querySelectorAll('#templates-list tr').forEach(row => {
+      row.style.display = row.textContent.toLowerCase().includes(term) ? '' : 'none';
+    });
   });
 
-  document.getElementById('template-form').addEventListener('submit', async function(event) {
-    event.preventDefault();
+  document.getElementById('target-audience').addEventListener('change', e => {
+    document.getElementById('specific-student-field').style.display = e.target.value === 'single-student' ? 'block' : 'none';
+  });
+
+  document.getElementById('template-form').addEventListener('submit', async e => {
+    e.preventDefault();
     const payload = {
       name: document.getElementById('template-name').value.trim(),
       channel: document.getElementById('channel').value,
@@ -252,31 +413,15 @@
       body: document.getElementById('body').value.trim(),
       active: document.getElementById('status').checked
     };
+    if (!payload.name || !payload.channel) return showToast('Complete los campos obligatorios', '#ef4444');
     const url = editingId ? `${API_BASE}/api/templates/${editingId}` : `${API_BASE}/api/templates`;
     const method = editingId ? 'PUT' : 'POST';
-
-    const res = await fetch(url, {
-      method,
-      headers: defaultHeaders,
-      body: JSON.stringify(payload)
-    });
-
-    if(res.ok){
-      alert('Plantilla guardada!');
-      editingId = null;
-      showList();
-      await loadTemplates();
-    } else {
-      const err = await res.json().catch(()=> ({}));
-      alert('Error al guardar: ' + (err.error || res.statusText));
-    }
+    const res = await fetch(url, { method, headers, body: JSON.stringify(payload) });
+    if (res.ok) { showToast('Plantilla guardada correctamente'); showList(); loadTemplates(); }
+    else showToast('Error al guardar', '#ef4444');
   });
 
-  // Init
-  (async function init(){
-    await loadTemplates();
-  })();
+  (async function init(){ await loadTemplates(); })();
 </script>
-
 </body>
 </html>
