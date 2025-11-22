@@ -11,3 +11,5 @@ INSTALL.pdf
 
 notificaciones_schema.sql
 setup_data.sql
+
+Backend/.env
