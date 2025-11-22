@@ -1,3 +1,13 @@
 # Node modules
 BE/node_modules/
 BE/.env
+Backend/node_modules
+Backend/package-lock.json
+app-react/node_modules
+app-react/package-lock.json
+
+INSTALL.md
+INSTALL.pdf
+
+notificaciones_schema.sql
+setup_data.sql
