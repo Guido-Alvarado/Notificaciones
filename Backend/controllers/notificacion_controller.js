@@ -242,16 +242,25 @@ async function enviarNotificacionInterno(alumno_id, plantilla_id, medio) {
         [alumno_id, plantilla_id, medio, exito, referenciaExterna]
     );
 }
+<<<<<<< HEAD
 
 // Obtener historial de notificaciones
 export const obtenerHistorialNotificaciones = async (req, res) => {
     try {
         const { alumno_id } = req.query;
+=======
+//Función de filtro
+// Obtener historial de notificaciones
+export const obtenerHistorialNotificaciones = async (req, res) => {
+    try {
+        const { alumno_id, alumno, fecha_desde, fecha_hasta, estado, tipo_evento } = req.query;
+>>>>>>> 4da385b (Dejar de trackear node_modules)
 
         let query = `
             SELECT 
                 n.*,
                 u.nombre, u.apellido, u.email,
+<<<<<<< HEAD
                 p.titulo as plantilla_titulo
             FROM notificaciones_enviadas n
             JOIN usuarios u ON n.alumno_id = u.id
@@ -268,12 +277,69 @@ export const obtenerHistorialNotificaciones = async (req, res) => {
 
         const [rows] = await pool.query(query, params);
         return res.json(rows);
+=======
+                p.titulo AS plantilla_titulo,
+                p.tipo AS plantilla_medio
+            FROM notificaciones_enviadas n
+            JOIN usuarios u ON n.alumno_id = u.id
+            LEFT JOIN plantillas_mensajes p ON n.plantilla_id = p.id
+            WHERE 1 = 1
+        `;
+
+        const params = [];
+
+        // FILTRO ALUMNO
+        if (alumno_id) {
+            query += ` AND n.alumno_id = ?`;
+            params.push(alumno_id);
+        }
+
+        // FILTRO POR NOMBRE / APELLIDO
+        if (alumno) {
+            query += ` AND (u.nombre LIKE ? OR u.apellido LIKE ?)`;
+            params.push(`%${alumno}%`, `%${alumno}%`);
+        }
+
+        // FILTRO FECHAS
+        if (fecha_desde) {
+            query += ` AND DATE(n.fecha_envio) >= ?`;
+            params.push(fecha_desde);
+        }
+        if (fecha_hasta) {
+            query += ` AND DATE(n.fecha_envio) <= ?`;
+            params.push(fecha_hasta);
+        }
+
+        // FILTRO ESTADO
+        if (estado) {
+            if (estado === "enviada") query += ` AND n.exito = 1`;
+            if (estado === "fallida") query += ` AND n.exito = 0`;
+            if (estado === "pendiente") query += ` AND n.exito IS NULL`;
+        }
+
+        // ✔ FILTRO TIPO DE EVENTO (usa el título de la plantilla)
+        if (tipo_evento) {
+            query += ` AND p.titulo = ?`;
+            params.push(tipo_evento);
+        }
+
+        query += " ORDER BY n.fecha_envio DESC LIMIT 300";
+
+        const [rows] = await pool.query(query, params);
+        return res.json(rows);
+
+>>>>>>> 4da385b (Dejar de trackear node_modules)
     } catch (error) {
         console.error("[ERROR obtenerHistorialNotificaciones]", error);
         return res.status(500).json({ error: "Error al obtener historial" });
     }
 };
 
+<<<<<<< HEAD
+=======
+    
+
+>>>>>>> 4da385b (Dejar de trackear node_modules)
 // Verificar y enviar notificaciones automáticas (para cron job)
 export const verificarYEnviarAutomaticas = async (req, res) => {
     try {
